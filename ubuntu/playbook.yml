@@ -1,0 +1,19 @@
+---
+- hosts: all
+  gather_facts: false
+  become: yes
+
+  tasks:
+  - name: Install chrony
+    apt: 
+      update_cache: true
+      pkg:
+        - python3
+        - chrony
+      state: present 
+
+  - name: Ensure chrony is running.
+    service:
+      name: chronyd
+      state: started
+      enabled: yes

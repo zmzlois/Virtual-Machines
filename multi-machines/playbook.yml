@@ -1,0 +1,24 @@
+---
+- hosts: app
+  gather_facts: false
+  become: yes
+
+  tasks:
+  - name: Install python 
+    apt:
+      update_cache: true 
+      pkg:
+        - python3
+      state: present
+
+- hosts: db
+  gather_facts: false
+  become: yes
+
+  tasks:
+  - name: Install python on db
+    apt:
+      update_cache: true
+      pkg:
+        - python3
+      state: present

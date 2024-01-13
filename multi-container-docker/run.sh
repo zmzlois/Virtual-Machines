@@ -27,25 +27,6 @@ function setup_tempdir() {
     export TEMP_DIR
 }
 
-function cleanup_tempdir() {
-
-
-    # Check if the file exists
-    if [ ! -f "${temp_ini}" ]; then
-        echo "Error: File '${temp_ini}' not found."
-        exit 1
-    fi
-
-    # Read each line from the file and remove the corresponding directory
-    while IFS= read -r directory; do
-        if [ -d "$directory" ]; then
-            echo "Removing directory: $directory"
-            rm -rf "$directory"
-        else
-            echo "Directory not found: $directory"
-        fi
-    done <"$temp_ini"
-}
 
 function create_temporary_ssh_id() {
     ssh-keygen -b 2048 -t rsa -C "${USER}@email.com" -f "${TEMP_DIR}/id_rsa" -N ""
@@ -101,9 +82,9 @@ function setup_test_inventory() {
 
     cat >"${TEMP_INVENTORY_FILE}" <<EOL
 [target_group]
-127.0.0.1:2201
-127.0.0.1:2202
-127.0.0.1:2203
+container1 ansible_host=127.0.0.1 ansible_port=2201
+container2 ansible_host=127.0.0.1 ansible_port=2202
+container3 ansible_host=127.0.0.1 ansible_port=2203
 [target_group:vars]
 ansible_ssh_private_key_file=${TEMP_DIR}/id_rsa
 EOL
@@ -116,6 +97,7 @@ function load_configuration() {
     # ansible-playbook -i "${TEMP_INVENTORY_FILE}" -vvv "${base_dir}/playbook.yml"
 }
 
+# TODO: make the trap become executable argument to ./run.sh
 setup_tempdir
 setup_test_inventory
 load_configuration
@@ -125,4 +107,3 @@ load_configuration
 create_temporary_ssh_id
 start_container
 
-# cleanup_tempdir

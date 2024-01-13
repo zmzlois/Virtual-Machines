@@ -4,7 +4,7 @@ version: '3'
 services:
   container1:
     build: 
-        context: /tmp/vm-j.afyExcQR
+        context: /tmp/vm-e.MrdG6I67
         dockerfile: ./Dockerfile
         args:
             USER: lois
@@ -13,7 +13,7 @@ services:
 
   container2:
     build: 
-        context: /tmp/vm-j.afyExcQR
+        context: /tmp/vm-e.MrdG6I67
         dockerfile: ./Dockerfile
         args:
             USER: lois
@@ -23,7 +23,7 @@ services:
 
   container3:
     build: 
-        context: /tmp/vm-j.afyExcQR
+        context: /tmp/vm-e.MrdG6I67
         dockerfile: ./Dockerfile
         args:
             USER: lois

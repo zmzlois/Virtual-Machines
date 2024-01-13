@@ -34,27 +34,39 @@ function start_container() {
     echo "Start building all containers"
     DOCKER_COMPOSE_FILE="${base_dir}/docker-compose.yml"
 
-    cat > "${DOCKER_COMPOSE_FILE}" << EOL
-    version: '3'
+    cat >"${DOCKER_COMPOSE_FILE}" <<EOL
+version: '3'
 
 
 services:
   container1:
-    build: .
+    build: 
+        context: .
+        args:
+            USER: ${USER}
+            TEMP_DIR: ${TEMP_DIR}
     ports:
       - "2201:22"
     networks:
       - ansible-net
 
   container2:
-    build: .
+    build: 
+        context: .
+        args:
+            USER: ${USER}
+            TEMP_DIR: ${TEMP_DIR}
     ports:
       - "2202:22"
     networks:
       - ansible-net
 
   container3:
-    build: .
+    build: 
+        context: .
+        args:
+            USER: ${USER}
+            TEMP_DIR: ${TEMP_DIR}
     ports:
       - "2203:22"
     networks:
@@ -63,6 +75,7 @@ services:
 networks:
   ansible-net:
 EOL
+    docker compose build --no-cache
     echo "Compose up all containers in detached mode"
     docker compose up -d
 }
@@ -91,10 +104,6 @@ setup_tempdir
 trap cleanup EXIT
 trap cleanup ERR
 create_temporary_ssh_id
+start_container
 setup_test_inventory
 load_configuration
-
-for i in {1..3}; do
-
-    start_container
-done

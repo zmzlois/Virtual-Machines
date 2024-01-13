@@ -3,21 +3,33 @@ version: '3'
 
 services:
   container1:
-    build: .
+    build: 
+        context: .
+        args:
+            USER: lois
+            TEMP_DIR: /tmp/vm-.qHln6owp
     ports:
       - "2201:22"
     networks:
       - ansible-net
 
   container2:
-    build: .
+    build: 
+        context: .
+        args:
+            USER: lois
+            TEMP_DIR: /tmp/vm-.qHln6owp
     ports:
       - "2202:22"
     networks:
       - ansible-net
 
   container3:
-    build: .
+    build: 
+        context: .
+        args:
+            USER: lois
+            TEMP_DIR: /tmp/vm-.qHln6owp
     ports:
       - "2203:22"
     networks:

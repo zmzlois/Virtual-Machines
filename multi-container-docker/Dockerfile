@@ -1,7 +1,6 @@
 FROM ubuntu:latest
 
 ARG USER=${USER}
-ARG TEMP_DIR=${TEMP_DIR}
 
 # Add sudo and openssh-server
 ENV DEBIAN_FRONTEND=noninteractive
@@ -17,7 +16,7 @@ RUN echo "${USER} ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/sudoers
 USER "${USER}"
 RUN mkdir ~/.ssh
 RUN chmod -R 700 ~/.ssh
-COPY --chown=${USER}:sudo ${TEMP_DIR}/id_rsa.pub /home/${USER}/.ssh/id_rsa.pub
+COPY --chown=${USER}:sudo id_rsa.pub /home/${USER}/.ssh/id_rsa.pub
 
 RUN cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
 RUN chmod 644 ~/.ssh/id_rsa.pub

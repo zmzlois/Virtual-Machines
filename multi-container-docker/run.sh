@@ -8,11 +8,9 @@ base_dir="$(dirname "$(readlink -f "$0")")"
 echo "Base directory: ${base_dir}"
 
 function cleanup() {
-    container_id=$(docker inspect --format="{{.Id}}" "${NAME}" || :)
-    if [[ -n "${container_id}" ]]; then
-        echo "Cleaning up container ${NAME}"
-        docker rm --force "${container_id}"
-    fi
+    echo "Run docker compose down to clean up" 
+    docker compoes down 
+
     if [[ -n "${TEMP_DIR:-}" && -d "${TEMP_DIR:-}" ]]; then
         echo "Cleaning up tempdir ${TEMP_DIR}"
         rm -rf "${TEMP_DIR}"
@@ -21,6 +19,8 @@ function cleanup() {
 
 function setup_tempdir() {
     TEMP_DIR=$(mktemp --directory "/tmp/${NAME}".XXXXXXXX)
+    
+    cp ./Dockerfile ${TEMP_DIR}/Dockerfile
     export TEMP_DIR
 }
 
@@ -41,10 +41,10 @@ version: '3'
 services:
   container1:
     build: 
-        context: .
+        context: ${TEMP_DIR}
+        dockerfile: ./Dockerfile
         args:
             USER: ${USER}
-            TEMP_DIR: ${TEMP_DIR}
     ports:
       - "2201:22"
     networks:
@@ -52,10 +52,10 @@ services:
 
   container2:
     build: 
-        context: .
+        context: ${TEMP_DIR}
+        dockerfile: ./Dockerfile
         args:
             USER: ${USER}
-            TEMP_DIR: ${TEMP_DIR}
     ports:
       - "2202:22"
     networks:
@@ -63,10 +63,10 @@ services:
 
   container3:
     build: 
-        context: .
+        context: ${TEMP_DIR}
+        dockerfile: ./Dockerfile
         args:
             USER: ${USER}
-            TEMP_DIR: ${TEMP_DIR}
     ports:
       - "2203:22"
     networks:
@@ -101,8 +101,8 @@ function load_configuration() {
 }
 
 setup_tempdir
-trap cleanup EXIT
-trap cleanup ERR
+# trap cleanup EXIT
+# trap cleanup ERR
 create_temporary_ssh_id
 start_container
 setup_test_inventory

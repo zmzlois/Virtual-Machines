@@ -4,10 +4,10 @@ version: '3'
 services:
   container1:
     build: 
-        context: .
+        context: /tmp/vm-4.wrk0mQNr
+        dockerfile: ./Dockerfile
         args:
             USER: lois
-            TEMP_DIR: /tmp/vm-.qHln6owp
     ports:
       - "2201:22"
     networks:
@@ -15,10 +15,10 @@ services:
 
   container2:
     build: 
-        context: .
+        context: /tmp/vm-4.wrk0mQNr
+        dockerfile: ./Dockerfile
         args:
             USER: lois
-            TEMP_DIR: /tmp/vm-.qHln6owp
     ports:
       - "2202:22"
     networks:
@@ -26,10 +26,10 @@ services:
 
   container3:
     build: 
-        context: .
+        context: /tmp/vm-4.wrk0mQNr
+        dockerfile: ./Dockerfile
         args:
             USER: lois
-            TEMP_DIR: /tmp/vm-.qHln6owp
     ports:
       - "2203:22"
     networks:

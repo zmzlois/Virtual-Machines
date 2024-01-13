@@ -4,36 +4,29 @@ version: '3'
 services:
   container1:
     build: 
-        context: /tmp/vm-4.wrk0mQNr
+        context: /tmp/vm-j.afyExcQR
         dockerfile: ./Dockerfile
         args:
             USER: lois
     ports:
-      - "2201:22"
-    networks:
-      - ansible-net
+      - "127.0.0.1:2201:22"
 
   container2:
     build: 
-        context: /tmp/vm-4.wrk0mQNr
+        context: /tmp/vm-j.afyExcQR
         dockerfile: ./Dockerfile
         args:
             USER: lois
     ports:
-      - "2202:22"
-    networks:
-      - ansible-net
+      - "127.0.0.1:2202:22"
+
 
   container3:
     build: 
-        context: /tmp/vm-4.wrk0mQNr
+        context: /tmp/vm-j.afyExcQR
         dockerfile: ./Dockerfile
         args:
             USER: lois
     ports:
-      - "2203:22"
-    networks:
-      - ansible-net
+      - "127.0.0.1:2203:22"
 
-networks:
-  ansible-net:

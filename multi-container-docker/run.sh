@@ -5,23 +5,46 @@ set -euo pipefail -vvv -v
 identifier="$(tr </dev/urandom -dc 'a-z0-9' | fold -w 5 | head -n 1)" || :
 NAME="vm-${identifier}"
 base_dir="$(dirname "$(readlink -f "$0")")"
+temp_ini="${base_dir}/tempdir.ini"
 echo "Base directory: ${base_dir}"
 
 function cleanup() {
-    echo "Run docker compose down to clean up" 
-    docker compoes down 
+    echo "Run docker compose down to clean up"
+    docker compose down
 
+    rm -rf docker-compose.yml
     if [[ -n "${TEMP_DIR:-}" && -d "${TEMP_DIR:-}" ]]; then
         echo "Cleaning up tempdir ${TEMP_DIR}"
         rm -rf "${TEMP_DIR}"
     fi
 }
 
+
 function setup_tempdir() {
     TEMP_DIR=$(mktemp --directory "/tmp/${NAME}".XXXXXXXX)
-    
+    echo ${TEMP_DIR} >>${temp_ini}
     cp ./Dockerfile ${TEMP_DIR}/Dockerfile
     export TEMP_DIR
+}
+
+function cleanup_tempdir() {
+
+
+    # Check if the file exists
+    if [ ! -f "${temp_ini}" ]; then
+        echo "Error: File '${temp_ini}' not found."
+        exit 1
+    fi
+
+    # Read each line from the file and remove the corresponding directory
+    while IFS= read -r directory; do
+        if [ -d "$directory" ]; then
+            echo "Removing directory: $directory"
+            rm -rf "$directory"
+        else
+            echo "Directory not found: $directory"
+        fi
+    done <"$temp_ini"
 }
 
 function create_temporary_ssh_id() {
@@ -46,9 +69,7 @@ services:
         args:
             USER: ${USER}
     ports:
-      - "2201:22"
-    networks:
-      - ansible-net
+      - "127.0.0.1:2201:22"
 
   container2:
     build: 
@@ -57,9 +78,8 @@ services:
         args:
             USER: ${USER}
     ports:
-      - "2202:22"
-    networks:
-      - ansible-net
+      - "127.0.0.1:2202:22"
+
 
   container3:
     build: 
@@ -68,12 +88,8 @@ services:
         args:
             USER: ${USER}
     ports:
-      - "2203:22"
-    networks:
-      - ansible-net
+      - "127.0.0.1:2203:22"
 
-networks:
-  ansible-net:
 EOL
     docker compose build --no-cache
     echo "Compose up all containers in detached mode"
@@ -81,29 +97,32 @@ EOL
 }
 
 function setup_test_inventory() {
-    TEMP_INVENTORY_FILE="${TEMP_DIR}/hosts"
+    TEMP_INVENTORY_FILE="${base_dir}/hosts.ini"
 
     cat >"${TEMP_INVENTORY_FILE}" <<EOL
 [target_group]
-localhost:2201
-localhost:2202
-localhost:2203
+127.0.0.1:2201
+127.0.0.1:2202
+127.0.0.1:2203
 [target_group:vars]
 ansible_ssh_private_key_file=${TEMP_DIR}/id_rsa
 EOL
-    export TEMP_INVENTORY_FILE
+    export ANSIBLE_INVENTORY=TEMP_INVENTORY_FILE
 }
 
 function load_configuration() {
     ANSIBLE_CONFIG="${base_dir}/ansible.cfg"
-    export ANSIBLE_INVENTORY=${TEMP_DIR}/hosts
+
     # ansible-playbook -i "${TEMP_INVENTORY_FILE}" -vvv "${base_dir}/playbook.yml"
 }
 
 setup_tempdir
+setup_test_inventory
+load_configuration
+
 # trap cleanup EXIT
 # trap cleanup ERR
 create_temporary_ssh_id
 start_container
-setup_test_inventory
-load_configuration
+
+# cleanup_tempdir
